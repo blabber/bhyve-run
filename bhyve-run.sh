@@ -115,6 +115,10 @@ f_vm_running () {
 	[ -e "/dev/vmm/${NAME}" ]
 }
 
+f_if_active () {
+	${IFCONFIG} "$1" | grep -q "status: active"
+}
+
 f_install_vm () {
 	cat >"${MAP}" <<-eof
 	(hd0) ${IMG}
@@ -134,6 +138,11 @@ f_install_vm () {
 f_run_vm () {
 	if f_vm_running; then
 		echo "VM is already running." >&2
+		exit 1
+	fi
+
+	if f_if_active "${TAP}"; then
+		echo "Interface ${TAP} already in use." >&2
 		exit 1
 	fi
 

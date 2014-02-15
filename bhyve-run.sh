@@ -60,6 +60,10 @@ f_bridge_has_member() {
 		exit 1
 	fi
 
+	if ! f_if_exists "$1"; then
+		return 1
+	fi
+
 	${IFCONFIG} ${BRIDGE} | grep -q "member: $1"
 }
 

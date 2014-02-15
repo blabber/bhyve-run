@@ -46,10 +46,20 @@ f_usage () {
 }
 
 f_if_exists() {
+	if ! [ $# -eq 1 ]; then
+		echo "missing parameter: f_if_exists <interface>"
+		exit 1
+	fi
+
 	${IFCONFIG} "$1" >/dev/null
 }
 
 f_bridge_has_member() {
+	if ! [ $# -eq 1 ]; then
+		echo "missing parameter: f_bridge_has_member <interface>"
+		exit 1
+	fi
+
 	${IFCONFIG} ${BRIDGE} | grep -q "member: $1"
 }
 
@@ -101,6 +111,11 @@ f_teardown_network () {
 }
 
 f_run_grubbhyve () {
+	if ! [ $# -eq 1 ]; then
+		echo "missing parameter: f_run_grubbhyve <root device>"
+		exit 1
+	fi
+
 	${GRUBBHYVE} -m "${MAP}" -M "${MEM}" -r "$1" "${NAME}"
 }
 
@@ -116,6 +131,11 @@ f_vm_running () {
 }
 
 f_if_active () {
+	if ! [ $# -eq 1 ]; then
+		echo "missing parameter: f_if_active <interface>"
+		exit 1
+	fi
+
 	${IFCONFIG} "$1" | grep -q "status: active"
 }
 

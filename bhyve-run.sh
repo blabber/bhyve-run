@@ -148,6 +148,8 @@ f_if_active () {
 		exit 1
 	fi
 
+	f_if_exists "$1" || return 1
+
 	${IFCONFIG} "$1" | grep -q "status: active"
 }
 

@@ -45,7 +45,7 @@ f_usage () {
 	eom
 }
 
-f_if_exists() {
+f_if_exists () {
 	if ! [ $# -eq 1 ]; then
 		echo "missing parameter: f_if_exists <interface>"
 		exit 1
@@ -54,20 +54,18 @@ f_if_exists() {
 	${IFCONFIG} "$1" >/dev/null 2>&1
 }
 
-f_bridge_has_member() {
+f_bridge_has_member () {
 	if ! [ $# -eq 1 ]; then
 		echo "missing parameter: f_bridge_has_member <interface>"
 		exit 1
 	fi
 
-	if ! f_if_exists "$1"; then
-		return 1
-	fi
+	f_if_exists "$1" || return 1
 
 	${IFCONFIG} ${BRIDGE} | grep -q "member: $1"
 }
 
-f_bridge_has_other_members() {
+f_bridge_has_other_members () {
 	${IFCONFIG} ${BRIDGE} | \
 		grep -v "member: ${IF}" | \
 		grep -q "member: "
@@ -79,9 +77,7 @@ f_if_create () {
 		exit 1
 	fi
 
-	if f_if_exists "$1"; then
-		return 1
-	fi
+	f_if_exists "$1" && return 1
 
 	${IFCONFIG} "$1" create
 }
@@ -92,9 +88,7 @@ f_if_destroy () {
 		exit 1
 	fi
 
-	if ! f_if_exists "$1"; then
-		return 1
-	fi
+	f_if_exists "$1" || return 1
 
 	${IFCONFIG} "$1" destroy
 }
@@ -103,13 +97,8 @@ f_setup_network () {
 	f_if_create "${BRIDGE}"
 	f_if_create "${TAP}"
 
-	if ! f_bridge_has_member "${TAP}"; then
-		${IFCONFIG} ${BRIDGE} addm ${TAP}
-	fi
-
-	if ! f_bridge_has_member "${IF}"; then
-		${IFCONFIG} ${BRIDGE} addm ${IF}
-	fi
+	f_bridge_has_member "${TAP}" || ${IFCONFIG} ${BRIDGE} addm ${TAP}
+	f_bridge_has_member "${IF}" || ${IFCONFIG} ${BRIDGE} addm ${IF}
 
 	${SYSCTL} net.link.tap.user_open=1 >/dev/null
 	${SYSCTL} net.link.tap.up_on_open=1 > /dev/null

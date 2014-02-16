@@ -37,9 +37,9 @@ f_usage () {
 	${CAT} >&2 <<-eom
 	bhyve-run.sh - run, install and destroy your grub-bhyve based vms
 
-	bhyve-run.sh -i -- install vm
-	bhyve-run.sh -r -- run vm
-	bhyve-run.sh -d -- destroy vm
+	bhyve-run.sh -i   -- install vm
+	bhyve-run.sh [-r] -- run vm
+	bhyve-run.sh -d   -- destroy vm
 
 	Options are defined in a local "${CONFIG}" file.
 	eom
@@ -278,12 +278,15 @@ while getopts "ird" opt; do
 	case $opt in
 	i)
 		f_install_vm
+		exit 0
 		;;
 	r)
 		f_run_vm
+		exit 0
 		;;
 	d)
 		f_destroy_vm
+		exit 0
 		;;
 	h)
 		f_usage
@@ -295,3 +298,5 @@ while getopts "ird" opt; do
 		;;
 	esac
 done
+
+f_run_vm

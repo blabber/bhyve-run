@@ -268,12 +268,6 @@ if ! f_load_config; then
 	exit 1
 fi
 
-
-if [ $# -eq 0 ]; then
-	f_usage
-	exit 1
-fi
-
 while getopts "ird" opt; do
 	case $opt in
 	i)

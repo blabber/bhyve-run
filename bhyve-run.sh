@@ -51,7 +51,7 @@ f_if_exists() {
 		exit 1
 	fi
 
-	${IFCONFIG} "$1" >/dev/null
+	${IFCONFIG} "$1" >/dev/null 2>&1
 }
 
 f_bridge_has_member() {
@@ -73,14 +73,35 @@ f_bridge_has_other_members() {
 		grep -q "member: "
 }
 
-f_setup_network () {
-	if ! f_if_exists "${BRIDGE}"; then
-		${IFCONFIG} ${BRIDGE} create
+f_if_create () {
+	if ! [ $# -eq 1 ]; then
+		echo "missing parameter: f_if_create <interface>"
+		exit 1
 	fi
 
-	if ! f_if_exists "${TAP}"; then
-		${IFCONFIG} ${TAP} create
+	if f_if_exists "$1"; then
+		return 1
 	fi
+
+	${IFCONFIG} "$1" create
+}
+
+f_if_destroy () {
+	if ! [ $# -eq 1 ]; then
+		echo "missing parameter: f_if_destroy <interface>"
+		exit 1
+	fi
+
+	if ! f_if_exists "$1"; then
+		return 1
+	fi
+
+	${IFCONFIG} "$1" destroy
+}
+
+f_setup_network () {
+	f_if_create "${BRIDGE}"
+	f_if_create "${TAP}"
 
 	if ! f_bridge_has_member "${TAP}"; then
 		${IFCONFIG} ${BRIDGE} addm ${TAP}
@@ -98,12 +119,10 @@ f_setup_network () {
 }
 
 f_teardown_network () {
-	if f_if_exists "${TAP}"; then
-		${IFCONFIG} ${TAP} destroy
-	fi
+	f_if_destroy "${TAP}"
 
 	if ! f_bridge_has_other_members; then
-		${IFCONFIG} ${BRIDGE} destroy
+		f_if_destroy "${BRIDGE}"
 	fi
 
 	cat >&2 <<-eom

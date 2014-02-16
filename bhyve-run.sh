@@ -14,6 +14,7 @@ GRUBBHYVE="/usr/local/sbin/grub-bhyve"
 ID="/usr/bin/id"
 IFCONFIG="/sbin/ifconfig"
 KLDSTAT="/sbin/kldstat"
+LESS="/usr/bin/less"
 PRINTF="/usr/bin/printf"
 SYSCTL="/sbin/sysctl"
 TRUNCATE="/usr/bin/truncate"
@@ -123,12 +124,19 @@ f_teardown_network () {
 }
 
 f_run_grubbhyve () {
-	if ! [ $# -eq 1 ]; then
-		echo "missing parameter: f_run_grubbhyve <root device>"
+	if ! [ $# -eq 2 ]; then
+		echo "missing parameter: f_run_grubbhyve <root device> <param>"
 		exit 1
 	fi
 
-	${GRUBBHYVE} -m "${MAP}" -M "${MEM}" -r "$1" "${NAME}"
+	if [ -z "$2" ]; then
+		${GRUBBHYVE} -m "${MAP}" -M "${MEM}" -r "$1" "${NAME}"
+	elif [ "$2" = "|less" ]; then
+		${GRUBBHYVE} -m "${MAP}" -M "${MEM}" -r "$1" "${NAME}" | ${LESS}
+	else
+		printf "c\n%s\n" "$2" | \
+			${GRUBBHYVE} -m "${MAP}" -M "${MEM}" -r "$1" "${NAME}"
+	fi
 }
 
 f_run_bhyve () {
@@ -163,9 +171,7 @@ f_install_vm () {
 
 	f_setup_network
 
-	${PRINTF} "c\n%s\n" "${GRUB_INSTALL}" | \
-		f_run_grubbhyve "cd0"
-
+	f_run_grubbhyve "cd0" "${GRUB_INSTALL}"
 	f_run_bhyve
 }
 
@@ -187,9 +193,7 @@ f_run_vm () {
 
 	f_setup_network
 
-	${PRINTF} "c\n%s\n" "${GRUB_RUN}" | \
-		f_run_grubbhyve "${GRUB_RUN_ROOT}"
-
+	f_run_grubbhyve "${GRUB_RUN_ROOT}" "${GRUB_RUN}"
 	f_run_bhyve
 }
 

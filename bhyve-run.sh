@@ -21,6 +21,18 @@ TRUNCATE="/usr/bin/truncate"
 
 CONFIG="bhyve-run.conf"
 
+f_usage () {
+	${CAT} >&2 <<-eom
+	bhyve-run.sh - run, install and destroy your grub-bhyve based vms
+
+	bhyve-run.sh -i   -- install vm
+	bhyve-run.sh [-r] -- run vm
+	bhyve-run.sh -d   -- destroy vm
+
+	Options are defined in a local "${CONFIG}" file.
+	eom
+}
+
 f_load_config () {
 	if [ -r "${CONFIG}" ]; then
 		. "${CONFIG}"
@@ -34,16 +46,12 @@ f_check_grubbhybe () {
 	[ -x "${GRUBBHYVE}" ]
 }
 
-f_usage () {
-	${CAT} >&2 <<-eom
-	bhyve-run.sh - run, install and destroy your grub-bhyve based vms
+f_user_is_root () {
+	[ $(${ID} -u) -eq 0 ]
+}
 
-	bhyve-run.sh -i   -- install vm
-	bhyve-run.sh [-r] -- run vm
-	bhyve-run.sh -d   -- destroy vm
-
-	Options are defined in a local "${CONFIG}" file.
-	eom
+f_vmm_loaded () {
+	${KLDSTAT} -v | ${GREP} -q "vmm"
 }
 
 f_if_exists () {
@@ -205,7 +213,7 @@ f_destroy_vm () {
 	f_teardown_network
 }
 
-if ! ${KLDSTAT} -v | ${GREP} -q "vmm"; then
+if ! f_vmm_loaded; then
 	${CAT} >&2 <<-eom
 	"vmm.ko" has to be loaded. To do so, run:
 
@@ -215,13 +223,13 @@ if ! ${KLDSTAT} -v | ${GREP} -q "vmm"; then
 	exit 1
 fi
 
-if ! [ $(${ID} -u) -eq 0 ]; then
+if ! f_user_is_root; then
 	echo "You must be root to run this script." >&2
 
 	exit 1
 fi
 
-if ! [ -x "${GRUBBHYVE}" ]; then
+if ! f_check_grubbhybe; then
  	${CAT} >&2 <<-eom   
 	grub-bhyve loader not. You can install it using something along the
 	lines of:

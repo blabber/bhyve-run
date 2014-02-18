@@ -9,7 +9,7 @@ this is mainly for non-FreeBSD guests. For FreeBSD guests the official vmrun.sh
 Example
 -------
 
-Let's set up a "ubuntu server" vm.
+Let's set up a "ubuntu server" VM.
 
 ### Step 1
 
@@ -39,8 +39,8 @@ data. Of course you'll have to adapt the paths accordingly.
 
 Start `bhyve-run.sh` in install mode using `bhyve-run.sh -i`. A second window
 will open displaying the grub menu. Make sure your cursor is in the window from
-where you started `bhyve-run.sh`, not the window containing the grub menu.
-Select the entry you would choose to start the install process and preed `e`.
+where you started `bhyve-run.sh`, not the window showing the grub menu.
+Select the entry you would choose to start the install process and press `e`.
 You will be presented with a series of grub commands. Enter the relevant
 commands into the `GRUB_INSTALL` variable in the `bhyve-run.conf` file (don't
 forget to append `boot`!). Shutdown the current bhyve instance using
@@ -78,9 +78,9 @@ instance using `bhyve-run.sh -d`.
 
 ### Step 4
 
-You should be able to boot into the vm by running `bhyve-run.sh` (you might have
-to change `GRUB_RUN_ROOT` variable). You will be presented with a text based
-grub menu and after selecting the appropriate option boot into the vm. If you
+You should be able to boot into the VM by running `bhyve-run.sh` (you might have
+to change the `GRUB_RUN_ROOT` variable). You will be presented with a text based
+grub menu and after selecting the appropriate option boot into the VM. If you
 are presented with a graphical boot menu, in a seperate window, enter `|less` in
 `GRUB_RUN` variable and proceed with Step 5.
 
@@ -89,8 +89,8 @@ are presented with a graphical boot menu, in a seperate window, enter `|less` in
 Select the entry you want to boot by default (remember to keep the cursor in the
 correct window, if you use the `|less` hack together with a graphical grub menu)
 and press `e`. Enter the relevant grub commands in the `GRUB_RUN` variable and
-add `boot`. No you can directly boot into the vm using `bhyve-run.sh`. Remember
-to clean up the vm using `bhyve-run.sh -d` when it is not longer needed.
+add `boot`. Now you can directly boot into the VM using `bhyve-run.sh`. Remember
+to clean up the VM using `bhyve-run.sh -d` when it is not longer needed.
 
 My `bhyve-run.conf` looks like this after this step:
 

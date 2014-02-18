@@ -274,7 +274,7 @@ if ! f_load_config; then
 	exit 1
 fi
 
-while getopts "ird" opt; do
+while getopts "irdh" opt; do
 	case $opt in
 	i)
 		f_install_vm
